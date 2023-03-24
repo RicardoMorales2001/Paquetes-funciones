@@ -1,0 +1,91 @@
+---
+title: "Paquete de funciones para Rstudio"
+author: "Ricardo Morales"
+date: "2023-03-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+######## En las primeras funciones se utiliza una librería proveniente del mismo Rstudio, esto para facilitar la creación de las funciones, además cada librería usada se encontrara en la parte superior de cada función.
+
+## Codigo de la 1era función 
+
+############ Librerías usadas.
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+############ Cargamos la base de datos "mtcars" de R
+```{r message=FALSE, warning=FALSE}
+data(mtcars)
+```
+############ Definimos la función de regresión lineal simple
+```{r message=FALSE, warning=FALSE}
+regresion_simple <- function(x, y) {
+  n <- length(x)
+  slope <- (n*sum(x*y) - sum(x)*sum(y)) / (n*sum(x^2) - sum(x)^2)
+  intercept <- mean(y) - slope*mean(x)
+  return(list(slope = slope, intercept = intercept))
+}
+```
+############ Ejecutamos la función de regresión lineal simple
+```{r message=FALSE, warning=FALSE}
+modelo <- regresion_simple(mtcars$wt, mtcars$mpg)
+```
+############ Imprimimos los resultados del modelo
+```{r message=FALSE, warning=FALSE}
+cat("El coeficiente de regresión es", modelo$slope, "y el término de intercepción es", modelo$intercept)
+```
+############ Graficamos los datos y la recta de regresión
+```{r message=FALSE, warning=FALSE}
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_point() + 
+  geom_abline(intercept = modelo$intercept, slope = modelo$slope, color = "green")
+```
+
+
+## Codigo de la 2da función 
+
+############ Librerías usadas.
+```{r message=FALSE, warning=FALSE}
+library("tidyverse")
+library("broom")
+```
+############ Cargamos la base de datos "mtcars" de R
+```{r message=FALSE, warning=FALSE}
+data(mtcars)
+```
+############ Definimos la función de comparación.
+```{r message=FALSE, warning=FALSE}
+Comp_reg <- function(x, y, Comparacion = c("lineal", "cuadratico")){
+  Dtf <- data.frame(x = x, y = y)
+  tb1 <- list()
+  tb2 <- list()
+  Grafico <- list()
+  if ("lineal" %in% Comparacion){
+      Reg <- lm(y ~ x, data = Dtf)
+      tb1[["lineal"]] <- broom::glance(Reg) %>% mutate(modelo = "lineal")
+      tb2[["lineal"]] <- broom::tidy(Reg) %>% mutate(modelo = "lineal")
+      Grafico[["Lineal"]] <- ggplot(data= Dtf, aes(x = x, y = y)) + stat_smooth(method = "lm", formula =  y ~ x) + theme_bw()
+  }
+  if ("cuadratico" %in% Comparacion){
+  Reg <- lm(y ~ x +I(x^2), data = Dtf)
+  tb1[["cuadratico"]] <- broom::glance(Reg) %>% mutate(modelo = "cuadratico")
+  tb2[["cuadratico"]] <- broom::tidy(Reg) %>% mutate(modelo = "cuadratico")
+  Grafico[["cuadratico"]] <- ggplot(data= Dtf, aes(x = x, y = y)) + stat_smooth(method = "lm", formula =  y ~ x + I(x^2)) + theme_bw()
+  }
+  Tabla1 <- tb1 %>% reduce(bind_rows) %>% arrange(AIC)
+  Tabla2 <- tb2[[Tabla1$modelo[[1]]]]
+  Grafico <- Grafico[[Tabla1$modelo[[1]]]]
+  print(Grafico)
+  return(list(Tabla_Modelo = Tabla1, Tabla_Parametros = Tabla2, Grafico = Grafico))
+  }
+```
+############ Ejecutamos la función
+```{r message=FALSE, warning=FALSE}
+  Res <- Comp_reg(x = mtcars$hp, y = mtcars$mpg)
+```
+
