@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(ggplot2)
+library(testthat)
 ```
 
 ############ Cargamos la base de datos "mtcars" de R
@@ -24,28 +25,32 @@ data(mtcars)
 ```
 ############ Definimos la función de regresión lineal simple
 ```{r message=FALSE, warning=FALSE}
-regresion_simple <- function(x, y) {
-  n <- length(x)
-  slope <- (n*sum(x*y) - sum(x)*sum(y)) / (n*sum(x^2) - sum(x)^2)
-  intercept <- mean(y) - slope*mean(x)
-  return(list(slope = slope, intercept = intercept))
+  reg_lineal <- function(x, y) {
+  
+  # Verificamos que los datos sean del mismo tamaño
+  if(length(x) != length(y)) {
+    stop("Los vectores deben tener el mismo tamaño.")
+  }
+  
+  # Creamos el modelo de regresión lineal
+  modelo <- lm(y ~ x)
+  
+  # Graficamos los datos y la recta de regresión
+  plot(x, y, main = "Regresión lineal", xlab = "x", ylab = "y")
+  abline(modelo, col = "red")
+  
+  # Retornamos el modelo de regresión lineal
+  return(modelo)
 }
 ```
-############ Ejecutamos la función de regresión lineal simple
+############ Ejemplo de uso de la función
 ```{r message=FALSE, warning=FALSE}
-modelo <- regresion_simple(mtcars$wt, mtcars$mpg)
+reg_lineal(mtcars$wt, mtcars$mpg)
 ```
-############ Imprimimos los resultados del modelo
+############ Esperamos que la función falle si los vectores tienen diferente tamaño
 ```{r message=FALSE, warning=FALSE}
-cat("El coeficiente de regresión es", modelo$slope, "y el término de intercepción es", modelo$intercept)
+expect_error(reg_lineal(c(1, 2, 3), c(4, 5)))
 ```
-############ Graficamos los datos y la recta de regresión
-```{r message=FALSE, warning=FALSE}
-ggplot(mtcars, aes(x = wt, y = mpg)) + 
-  geom_point() + 
-  geom_abline(intercept = modelo$intercept, slope = modelo$slope, color = "green")
-```
-
 
 ## Codigo de la 2da función 
 
@@ -84,8 +89,66 @@ Comp_reg <- function(x, y, Comparacion = c("lineal", "cuadratico")){
   return(list(Tabla_Modelo = Tabla1, Tabla_Parametros = Tabla2, Grafico = Grafico))
   }
 ```
-############ Ejecutamos la función
+############ Ejemplo de uso de la función
 ```{r message=FALSE, warning=FALSE}
   Res <- Comp_reg(x = mtcars$hp, y = mtcars$mpg)
 ```
+
+
+
+## Codigo de la 3era función 
+
+############ Librerías usadas.
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(testthat)
+```
+############ Función que calcula la correlación y crea un ggplot
+```{r message=FALSE, warning=FALSE}
+my_corr_plot <- function(data, x_var, y_var) {
+  
+  # Verificar si los argumentos proporcionados son correctos
+  if (!is.data.frame(data)) {
+    stop("El argumento 'data' debe ser un dataframe.")
+  }
+  if (!(x_var %in% colnames(data))) {
+    stop(paste0("La columna '", x_var, "' no existe en el dataframe."))
+  }
+  if (!(y_var %in% colnames(data))) {
+    stop(paste0("La columna '", y_var, "' no existe en el dataframe."))
+  }
+  
+  # Calcular la correlación
+  corr <- cor(data[[x_var]], data[[y_var]])
+  
+  # Crear un ggplot
+  my_plot <- ggplot(data, aes(x = !!sym(x_var), y = !!sym(y_var))) +
+    geom_point() +
+    labs(title = paste0("Correlacion: ", round(corr, 2)), encoding = "UTF-8")
+  
+  # Mostrar el ggplot
+  print(my_plot)
+  
+  # Devolver la correlación
+  return(corr)
+}
+```
+############ Ejemplo de uso
+```{r message=FALSE, warning=FALSE}
+data(mtcars)
+my_corr_plot(mtcars, "mpg", "wt")
+```
+############ expect_error() para verificar si se proporcionan argumentos incorrectos
+```{r message=FALSE, warning=FALSE}
+expect_error(my_corr_plot(iris, "foo", "bar"), "La columna 'foo' no existe en el dataframe.")
+expect_error(my_corr_plot(iris, "Sepal.Length", "baz"), "La columna 'baz' no existe en el dataframe.")
+expect_error(my_corr_plot(42, "mpg", "wt"), "El argumento 'data' debe ser un dataframe.")
+```
+
+
+
+
+
+
 
