@@ -24,7 +24,7 @@ library(FuncionesCursoR)
 # Create some data format
 # :::::::::::::::::::::::::::::::::::::::::::::::::::
 set.seed(1234)
-x <- c(1, 2, 3, 4, 5)
-y <- c(3, 5, 7, 9, 11)
-reg_lineal(x, y)
+# x <- c(1, 2, 3, 4, 5)
+# y <- c(3, 5, 7, 9, 11)
+# reg_lineal(x, y)
 #> Intercept x= 2
