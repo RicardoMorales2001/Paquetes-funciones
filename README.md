@@ -20,7 +20,7 @@ Distribution
 
  r
 ### library(FuncionesCursoR)
-### Loading required package: ggplot2; dplyr; testthat
+#### Loading required package: ggplot2; dplyr; testthat; tidyverse
 ### Create some data format
 # :::::::::::::::::::::::::::::::::::::::::::::::::::
 set.seed(1234)
