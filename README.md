@@ -11,8 +11,8 @@ Installation and loading
 
  r
 # Install
-if(!require(devtools)) install.packages("devtools")
-devtools::install_github("RicardoMorales2001/FuncionesCursoR")
+### if(!require(devtools)) install.packages("devtools")
+### devtools::install_github("RicardoMorales2001/FuncionesCursoR")
 
 
 Distribution
