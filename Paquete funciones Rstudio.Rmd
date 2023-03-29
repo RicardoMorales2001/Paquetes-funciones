@@ -59,39 +59,34 @@ expect_error(reg_lineal(c(1, 2, 3), c(4, 5)))
 library("tidyverse")
 library("broom")
 ```
-############ Cargamos la base de datos "mtcars" de R
+
+############ Definimos la función de regresión lineal múltiple
+```{r message=FALSE, warning=FALSE}
+multi_reg <- function(data, dependent_var, independent_vars) {
+
+  if (!is.data.frame(data)) {
+    stop("El argumento data debe ser un dataframe.")
+  }
+
+  if (!(dependent_var %in% colnames(data))) {
+    stop(paste0("La variable dependiente '", dependent_var, "' no existe en el dataframe."))
+  }
+
+  if (!all(independent_vars %in% colnames(data))) {
+    stop("Alguna de las variables independientes no existe en el dataframe.")
+  }
+
+  formula <- as.formula(paste(dependent_var, "~", paste(independent_vars, collapse = "+")))
+  model <- lm(formula, data = data)
+  print(summary(model))
+  plot(model$fitted.values, data[, dependent_var], main = "Valores ajustados vs. valores reales")
+  return(model)
+}
+```
+############ Ejemplo de uso
 ```{r message=FALSE, warning=FALSE}
 data(mtcars)
-```
-############ Definimos la función de comparación.
-```{r message=FALSE, warning=FALSE}
-Comp_reg <- function(x, y, Comparacion = c("lineal", "cuadratico")){
-  Dtf <- data.frame(x = x, y = y)
-  tb1 <- list()
-  tb2 <- list()
-  Grafico <- list()
-  if ("lineal" %in% Comparacion){
-      Reg <- lm(y ~ x, data = Dtf)
-      tb1[["lineal"]] <- broom::glance(Reg) %>% mutate(modelo = "lineal")
-      tb2[["lineal"]] <- broom::tidy(Reg) %>% mutate(modelo = "lineal")
-      Grafico[["Lineal"]] <- ggplot(data= Dtf, aes(x = x, y = y)) + stat_smooth(method = "lm", formula =  y ~ x) + theme_bw()
-  }
-  if ("cuadratico" %in% Comparacion){
-  Reg <- lm(y ~ x +I(x^2), data = Dtf)
-  tb1[["cuadratico"]] <- broom::glance(Reg) %>% mutate(modelo = "cuadratico")
-  tb2[["cuadratico"]] <- broom::tidy(Reg) %>% mutate(modelo = "cuadratico")
-  Grafico[["cuadratico"]] <- ggplot(data= Dtf, aes(x = x, y = y)) + stat_smooth(method = "lm", formula =  y ~ x + I(x^2)) + theme_bw()
-  }
-  Tabla1 <- tb1 %>% reduce(bind_rows) %>% arrange(AIC)
-  Tabla2 <- tb2[[Tabla1$modelo[[1]]]]
-  Grafico <- Grafico[[Tabla1$modelo[[1]]]]
-  print(Grafico)
-  return(list(Tabla_Modelo = Tabla1, Tabla_Parametros = Tabla2, Grafico = Grafico))
-  }
-```
-############ Ejemplo de uso de la función
-```{r message=FALSE, warning=FALSE}
-  Res <- Comp_reg(x = mtcars$hp, y = mtcars$mpg)
+multi_reg(mtcars, "mpg", c("cyl", "hp", "wt"))
 ```
 
 
