@@ -7,7 +7,7 @@ This is a demo package from R4DS tutorial.
 Installation and loading
 ------------------------
 
--   Install the latest version from [GitHub](https://github.com/gualapuromoises/residualR) as follow:
+-   Install the latest version from [GitHub](https://github.com/RicardoMorales2001/Paquetesfunciones.git) as follow:
 
  r
 # Install
