@@ -20,8 +20,8 @@ Distribution
 
  r
 ### library(FuncionesCursoR)
-# Loading required package: ggplot2; dplyr; testthat
-# Create some data format
+### Loading required package: ggplot2; dplyr; testthat
+### Create some data format
 # :::::::::::::::::::::::::::::::::::::::::::::::::::
 set.seed(1234)
 #### x <- c(1, 2, 3, 4, 5)
